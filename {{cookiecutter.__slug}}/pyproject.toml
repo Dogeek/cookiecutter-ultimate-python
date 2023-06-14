@@ -1,0 +1,177 @@
+[project]
+name = "{{cookiecutter.__slug}}"
+version = "{{cookiecutter.version}}"
+description = "{{cookiecutter.description}}"
+authors = [
+    {name = "{{cookiecutter.author}}", email = "{{cookiecutter.email}}"},
+]
+dependencies = []
+requires-python = ">={{cookiecutter.python_version}}"
+readme = "README.md"
+license = {text = "{{cookiecutter.license}}"}
+
+{{ if cookiecutter.dependency_manager == "poetry" }}
+[tool.poetry]
+name = "{{cookiecutter.__slug}}"
+version = "{{cookiecutter.version}}"
+description = "{{cookiecutter.description}}"
+authors = ["{{cookiecutter.author}} <{{cookiecutter.email}}>"]
+license = "{{cookiecutter.license}}"
+readme = "README.md"
+packages = [{include = "src", from = "."}]
+classifiers = {{cookiecutter.classifiers | jsonify}}
+
+[tool.poetry.dependencies]
+python = "^{{cookiecutter.python_version}}"
+
+[tool.poetry.group.lint.dependencies]
+codespell = "^2.2.4"
+{% if cookiecutter.linter == "flake8" %}
+flake8 = "^6.0.0"
+{% elif cookiecutter.linter == "ruff" %}
+ruff = "^0.0.272"
+{% endif %}
+flake8-isort = "^6.0.0"
+yesqa = "^1.4.0"
+
+{% if cookiecutter.typecheck != "none" %}
+[tool.poetry.group.typechecking.dependencies]
+{% if cookiecutter.typecheck == "mypy" %}
+mypy = "^1.3.0"
+{% endif %}
+{% endif %}
+
+[tool.poetry.group.formatting.dependencies]
+isort = "^5.12.0"
+{% if cookiecutter.formatter == "black" %}
+black = "^23.3.0"
+{% elif cookiecutter.formatter == "yapf" %}
+yapf = "^0.33.0"
+{% endif %}
+
+[tool.poetry.group.testing.dependencies]
+coverage = "^7.2.7"
+pytest = "^7.3.1"
+pytest-cov = "^4.1.0"
+
+[tool.poetry.group.dev.dependencies]
+{% if cookiecutter.task_runner == "poethepoet" %}
+poethepoet = "^0.20.0"
+{% endif %}
+pre-commit = "^3.3.2"
+tbump = "^6.10.0"
+{% endif %}
+
+[tool.flake8]
+max-line-length = {{cookiecutter.preferred_line_length}}
+include = "src"
+
+[tool.ruff]
+line-length = {{cookiecutter.preferred_line_length}}
+target-version = "{{cookiecutter.__target_version}}"
+
+[tool.isort]
+ensure_newline_before_comments = true
+force_grid_wrap = 0
+include_trailing_comma = true
+line_length = {{cookiecutter.preferred_line_length}}
+multi_line_output = 3
+profile = "black"
+py_version = '{{ cookiecutter.python_version.replace(".", "") }}'
+use_parentheses = true
+
+{% if cookiecutter.formatter == "black" %}
+[tool.black]
+line-length = {{cookiecutter.preferred_line_length}}
+target-version = ['{{cookiecutter.__target_version}}']
+include = '\.pyi?$'
+exclude = '''
+/(
+    \.eggs
+  | \.git
+  | \.hg
+  | \.mypy_cache
+  | \.tox
+  | \.venv
+  | _build
+  | buck-out
+  | build
+  | data
+  | notebooks
+  | dist
+  # The following are specific to Black, you probably don't want those.
+  | blib2to3
+  | tests/data
+  | profiling
+)/
+'''
+{% endif %}
+
+[tool.codespell]
+ignore-words = ".codespell"
+
+[tool.pytest.ini_options]
+addopts = "-ra --log-level=CRITICAL"
+minversion = "7.0"
+filterwarnings = [
+    "ignore::UserWarning",
+    "ignore::DeprecationWarning",
+    "ignore::PendingDeprecationWarning",
+    "ignore::FutureWarning",
+    'ignore:function ham\(\) is deprecated:DeprecationWarning',
+]
+
+[tool.tbump]
+# Uncomment this if your project is hosted on GitHub:
+github_url = "https://github.com/{{cookiecutter.author}}/{{cookiecutter.__slug}}/"
+
+[tool.tbump.version]
+current = "{{cookiecutter.version}}"
+
+# Example of a semver regexp.
+# Make sure this matches current_version before
+# using tbump
+regex = '''
+  (?P<major>\d+)
+  \.
+  (?P<minor>\d+)
+  \.
+  (?P<patch>\d+)
+  '''
+
+[tool.tbump.git]
+message_template = "Bump to {new_version}"
+tag_template = "v{new_version}"
+
+# For each file to patch, add a [[tool.tbump.file]] config
+# section containing the path of the file, relative to the
+# tbump.toml location.
+[[tool.tbump.file]]
+src = "src/__init__.py"
+version_template = "{major}.{minor}.{patch}"
+search = "__version__ = \"{current_version}\""
+
+# You can specify a list of commands to
+# run after the files have been patched
+# and before the git commit is made
+
+#  [[tool.tbump.before_commit]]
+#  name = "check changelog"
+#  cmd = "grep -q {new_version} Changelog.rst"
+
+[[after_push]]
+name = "Publish to PyPI"
+{% if cookiecutter.dependency_manager == "poetry" %}
+cmd = "poetry publish --build"
+{% elif cookiecutter.dependency_manager == "pdm" %}
+cmd = "pdm publish"
+{% endif %}
+
+[build-system]
+{% if cookiecutter.dependency_manager == "poetry" %}
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
+{% elif cookiecutter.dependency_manager == "pdm" %}
+requires = ["pdm-backend"]
+build-backend = "pdm.backend"
+{% endif %}

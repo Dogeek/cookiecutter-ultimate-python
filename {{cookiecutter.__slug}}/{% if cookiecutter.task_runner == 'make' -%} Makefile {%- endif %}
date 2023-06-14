@@ -1,0 +1,24 @@
+.PHONY help
+
+all: build push clean
+
+build:
+	@echo "Building {{cookiecutter.__slug}}"
+	@docker build -t {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:$(cat .version) .
+	@docker build -t {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:latest .
+	@docker build -t {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:$(cat .version)-alpine -f Dockerfile.alpine .
+	@docker build -t {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:latest-alpine -f ./Dockerfile.alpine .
+
+push:
+	@echo "Pushing {{cookiecutter.__slug}} to docker repo {{cookiecutter.docker_repo}}"
+	@docker push {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:$(cat .version)
+	@docker push {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:latest
+	@docker push {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:$(cat .version)-alpine
+	@docker push {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:latest-alpine
+
+clean:
+	@echo "Cleaning {{cookiecutter.__slug}}"
+	@docker rmi -f {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:$(cat .version)
+	@docker rmi -f {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:latest
+	@docker rmi -f {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:$(cat .version)-alpine
+	@docker rmi -f {{cookiecutter.docker_repo}}/{{cookiecutter.__docker_image}}:latest-alpine

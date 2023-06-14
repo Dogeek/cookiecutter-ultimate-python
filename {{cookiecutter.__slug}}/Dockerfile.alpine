@@ -1,0 +1,51 @@
+FROM python:{{cookiecutter.python_version}}-alpine AS builder
+
+WORKDIR /app
+# Full list of python env var : https://docs.python.org/3/using/cmdline.html
+ENV PYTHONUNBUFFERED 1
+ENV PYTHONPYCACHEPREFIX "/cache"
+
+# ENV PYTHONWARNINGS=default  # Warn once per call location
+# ENV PYTHONWARNINGS=error    # Convert to exceptions
+# ENV PYTHONWARNINGS=always   # Warn every time
+# ENV PYTHONWARNINGS=module   # Warn once per calling module
+# ENV PYTHONWARNINGS=once     # Warn once per Python process
+# ENV PYTHONWARNINGS=ignore   # Never warn
+
+# Setup env variables for dependency manager
+{% if cookiecutter.dependency_manager == "pdm" %}
+ENV PDM_IGNORE_SAVED_PYTHON_VERSION=1
+ENV PDM_USE_SYSTEM_PYTHON=1
+{% elif cookiecutter.dependency_manager == "poetry" %}
+ENV POETRY_VIRTUALENVS_CREATE=false
+{% endif %}
+
+# Install system dependencies
+RUN apk update \
+    && apk add --no-cache \
+        linux-headers \
+        python3-dev \
+        pipx \
+    && rm -rf /var/cache/apk/*
+
+# Install dependency manager
+{% if cookiecutter.dependency_manager == "pdm" %}
+RUN pipx install pdm
+{% elif cookiecutter.dependency_manager == "poetry" %}
+RUN pipx install poetry
+{% endif %}
+
+# Install project dependencies
+COPY LICENSE /app/
+COPY pyproject.toml /app/
+
+{% if cookiecutter.dependency_manager == "pdm" %}
+COPY pdm.lock /app/
+RUN pdm install
+{% elif cookiecutter.dependency_manager == "poetry" %}
+COPY poetry.lock /app/
+RUN poetry install --only main
+{% endif %}
+
+# Copy project files
+COPY src /app/

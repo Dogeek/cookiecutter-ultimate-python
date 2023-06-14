@@ -1,0 +1,77 @@
+{
+    "_extensions": [
+        "jinja2_time.TimeExtension",
+        "local_extensions.LicenseClassifierExtension"
+    ],
+    "name": "project",
+    "__slug": "{{ cookiecutter.name | slugify }}",
+    "__package_name": "{{ cookiecutter.slug.replace('-', '_') }}",
+    "__friendly_name": "{{ cookiecutter.name.replace('-', ' ').title() }}",
+    "type": [
+        "Generic",
+        "API",
+        "ML",
+        "CLI",
+        "GUI",
+        "SDK"
+    ],
+    "description": "",
+    "dependency_manager": [
+        "poetry",
+        "pdm"
+    ],
+    "python_version": [
+        "3.8",
+        "3.9",
+        "3.10",
+        "3.11"
+    ],
+    "__target_version": "py{{ cookiecutter.python_version.replace('.', '') }}",
+    "__pyversion_classifier": "Programming Language :: Python :: {{ cookiecutter.python_version }}",
+    "__license_classifier": "{{ cookiecutter.license | to_classifier_license }}",
+    "__classifiers": "[{{ cookiecutter.__pyversion_classifier }},{{ cookiecutter.__license_classifier }}]",
+    "license": [
+        "MIT",
+        "Proprietary",
+        "Apache-2.0",
+        "GPL-3.0",
+        "AGPL-3.0",
+        "LGPL-3.0",
+        "Unlicense",
+        "MPL-2.0"
+    ],
+    "email": "",
+    "__copyright_year": "{% now 'utc', '%Y' %}",
+    "editor": [
+        "none",
+        "vscode"
+    ],
+    "formatter": [
+        "black",
+        "yapf"
+    ],
+    "tester": [
+        "pytest",
+        "unittest"
+    ],
+    "linter": [
+        "ruff",
+        "flake8",
+        "pylama"
+    ],
+    "typecheck": [
+        "mypy",
+        "none"
+    ],
+    "task_runner": [
+        "poethepoet",
+        "make"
+    ],
+    "ci": [
+        "none",
+        "jenkins",
+        "travis",
+        "github"
+    ],
+    "version": "1.0.0"
+}
