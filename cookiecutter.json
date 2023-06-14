@@ -1,7 +1,8 @@
 {
     "_extensions": [
         "jinja2_time.TimeExtension",
-        "local_extensions.LicenseClassifierExtension"
+        "local_extensions.LicenseClassifierExtension",
+        "local_extensions.DependencyExtension"
     ],
     "name": "project",
     "__slug": "{{ cookiecutter.name | slugify }}",
